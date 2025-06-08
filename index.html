@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            margin-right: 10px;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            min-height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Task Manager</h1>
+        <div>
+            <input type="text" id="userId" placeholder="Enter your UserId here">
+        </div>
+        <div>
+            <input type="text" id="taskDesc" placeholder="Enter data here">
+            <button onclick="updateData()">Update Data</button>
+            <button onclick="getData()">Get Data</button>
+        </div>
+
+        <div id="result">
+            Results will appear here...
+        </div>
+    </div>
+
+    <script>
+
+        const API_GATEWAY_URL = 'https://ma3gborjyk.execute-api.us-east-1.amazonaws.com/test';
+        
+
+        function updateData() {
+
+            const userId = document.getElementById('userId').value;
+
+            console.log(userId)
+            console.log("I am in update data - after input data")
+
+            if (!userId.trim()) {
+                alert('UserId is a required field');
+                return;
+            }
+
+            const inputData = document.getElementById('taskDesc').value;
+
+            console.log("I am in update data")
+            console.log(inputData)
+            console.log("I am in update data - after input data")
+
+            if (!inputData.trim()) {
+                alert('Please enter some data first');
+                return;
+            }
+
+            fetch(API_GATEWAY_URL, {
+                method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                body: JSON.stringify({ user_name: userId, 
+                                    task_desc: inputData })
+            })
+            .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to add task');
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('result').innerText = '✅ Task added successfully!';
+            document.getElementById('taskDesc').value = ''; 
+        })
+        .catch(error => {
+            document.getElementById('result').innerText = '❌ Error: ' + error.message;
+        });
+    }
+
+        function getData() {
+            console.log("I am in getData")
+            const userId = document.getElementById('userId').value;
+
+            console.log(userId)
+            console.log("I am in update data - after input data")
+
+            if (!userId.trim()) {
+                alert('UserId is a required field');
+                return;
+            }
+            API_GATEWAY_URL_USER = API_GATEWAY_URL + '?user_nm=' + encodeURIComponent(userId);
+            console.log(API_GATEWAY_URL_USER)            
+            fetch(API_GATEWAY_URL_USER)
+            .then(response => response.json())
+            .then(data => {
+            data.sort((a, b) => new Date(a.upd_ts) - new Date(b.upd_ts));
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+
+            if (data.length === 0) {
+                resultDiv.innerText = 'No tasks found.';
+                return;
+            }
+
+            const list = document.createElement('ul');
+            list.style.listStyle = 'none';
+            list.style.padding = '0';
+
+            data.forEach((item, index) => {
+                const listItem = document.createElement('li');
+                listItem.style.marginBottom = '8px';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `task-${index}`;
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked) {
+                        label.style.textDecoration = 'line-through';
+                        label.style.color = 'gray';
+                    } else {
+                        label.style.textDecoration = 'none';
+                        label.style.color = 'black';
+                    }
+                });
+
+                const label = document.createElement('label');
+                label.setAttribute('for', `task-${index}`);
+                label.innerText = item.task_desc;
+                label.style.marginLeft = '8px';
+
+                listItem.appendChild(checkbox);
+                listItem.appendChild(label);
+                list.appendChild(listItem);
+            });
+
+            resultDiv.appendChild(list);
+        })
+        .catch(error => {
+            document.getElementById('result').innerText = 'Error: ' + error.message;
+        });
+            console.log("After fetch getData")
+            
+        }
+    </script>
+</body>
+</html>

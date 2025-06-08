@@ -1,0 +1,25 @@
+{
+    "Table": {
+        "AttributeDefinitions": [
+            {
+                "AttributeName": "upd_ts",
+                "AttributeType": "S"
+            },
+            {
+                "AttributeName": "user_nm",
+                "AttributeType": "S"
+            }
+        ],
+        "TableName": "task_list",
+        "KeySchema": [
+            {
+                "AttributeName": "user_nm",
+                "KeyType": "HASH"
+            },
+            {
+                "AttributeName": "upd_ts",
+                "KeyType": "RANGE"
+            }
+        ]
+    }
+}
